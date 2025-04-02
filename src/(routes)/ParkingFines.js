@@ -11,9 +11,7 @@ function ParkingFines() {
 
   const getListCarInfo = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:5000/api/ParkingFines/getList"
-      );
+      const response = await axios.get(`${API_URL}/ParkingFines/getList`);
 
       const vehiclesWithFines = response.data.reduce((acc, vehicle) => {
         const fines = vehicle.parkingFines || [];
@@ -41,7 +39,7 @@ function ParkingFines() {
   const getCarDocInfo = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/ParkingFinesCarInfo/getList"
+        `${API_URL}/ParkingFinesCarInfo/getList`
       );
 
       const vehicles = response.data.map((item) => ({
@@ -63,10 +61,9 @@ function ParkingFines() {
 
   const handleSearch = async () => {
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/parkingCheckFines",
-        { vehicles: vehicles }
-      );
+      const response = await axios.post(`${API_URL}/parkingCheckFines`, {
+        vehicles: vehicles,
+      });
       setAllFines(response.data);
       setError("");
     } catch (error) {
@@ -136,8 +133,8 @@ function ParkingFines() {
 
       if (vehiclesWithNewFines.length > 0) {
         const response = await axios.post(
-          "http://localhost:5000/api/ParkingFines/create",
-          vehiclesWithNewFines // ✅ ახლა ჯარიმები მასივად იგზავნება
+          `${API_URL}/ParkingFines/create`,
+          vehiclesWithNewFines
         );
         console.log("Success: ", response.data);
         setError(""); // წაშალოს წინა შეცდომები
