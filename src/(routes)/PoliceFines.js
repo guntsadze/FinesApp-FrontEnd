@@ -9,15 +9,17 @@ function PoliceFines() {
   const [finesData, setFinesData] = useState([]);
   const [vehicles, setVehicles] = useState([]);
 
-  const API_URL = process.env.REACT_APP_API_BASE_URL;
+  const REACT_APP_API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-  console.log("Backend API URL:", API_URL);
+  console.log("Backend API URL:", REACT_APP_API_BASE_URL);
 
   console.log("allFines", allFines);
 
   const getListCarInfo = async () => {
     try {
-      const response = await axios.get(`${API_URL}/policeFines/getList`);
+      const response = await axios.get(
+        `${REACT_APP_API_BASE_URL}/policeFines/getList`
+      );
       const vehiclesWithFines = response.data.reduce((acc, vehicle) => {
         const fines = vehicle.fines || [];
         fines.forEach((fine) => {
@@ -44,7 +46,9 @@ function PoliceFines() {
 
   const getCarDocInfo = async () => {
     try {
-      const response = await axios.get(`${API_URL}/PoliceFinesCarInfo/getList`);
+      const response = await axios.get(
+        `${REACT_APP_API_BASE_URL}/PoliceFinesCarInfo/getList`
+      );
 
       const vehicles = response.data.map((item) => ({
         vehicleNo: item.vehicleNo,
@@ -65,9 +69,12 @@ function PoliceFines() {
 
   const handleSearch = async () => {
     try {
-      const response = await axios.post(`${API_URL}/policeCheckFines`, {
-        vehicles: vehicles,
-      });
+      const response = await axios.post(
+        `${REACT_APP_API_BASE_URL}/policeCheckFines`,
+        {
+          vehicles: vehicles,
+        }
+      );
       setAllFines(response.data);
       setError("");
     } catch (error) {
@@ -148,7 +155,7 @@ function PoliceFines() {
 
       if (vehiclesWithNewFines.length > 0) {
         const response = await axios.post(
-          `${API_URL}/policeFines/create`,
+          `${REACT_APP_API_BASE_URL}/policeFines/create`,
           vehiclesWithNewFines // ✅ ახლა ჯარიმები მასივად იგზავნება
         );
         console.log("Success: ", response.data);

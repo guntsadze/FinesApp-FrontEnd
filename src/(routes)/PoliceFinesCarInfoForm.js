@@ -45,7 +45,7 @@ function PoliceFinesCarInfoForm() {
     e.preventDefault();
     try {
       const response = await axios.post(
-        `${API_URL}/PoliceFinesCarInfo/create`,
+        `${REACT_APP_API_BASE_URL}/PoliceFinesCarInfo/create`,
         { vehicleNo, documentNo }
       );
       setSuccessMessage(response.data.message);
@@ -60,7 +60,9 @@ function PoliceFinesCarInfoForm() {
 
   const handleGetList = async () => {
     try {
-      const response = await axios.get(`${API_URL}/PoliceFinesCarInfo/getList`);
+      const response = await axios.get(
+        `${REACT_APP_API_BASE_URL}/PoliceFinesCarInfo/getList`
+      );
       setData(
         response.data.map((item) => ({ ...item, id: item._id })) // Ensure each row has a unique `id` for DataGrid
       );
@@ -73,7 +75,9 @@ function PoliceFinesCarInfoForm() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${API_URL}/PoliceFinesCarInfo/delete/${id}`);
+      await axios.delete(
+        `${REACT_APP_API_BASE_URL}/PoliceFinesCarInfo/delete/${id}`
+      );
       setSuccessMessage("Car info deleted successfully!");
       setError("");
       handleGetList(); // Refresh data grid after deletion
@@ -95,7 +99,7 @@ function PoliceFinesCarInfoForm() {
     try {
       await axios.put(
         await axios.delete(
-          `${API_URL}/PoliceFinesCarInfo/update/${selectedRow.id}`
+          `${REACT_APP_API_BASE_URL}/PoliceFinesCarInfo/update/${selectedRow.id}`
         ),
 
         { vehicleNo, documentNo }
@@ -148,7 +152,9 @@ function PoliceFinesCarInfoForm() {
 
   const importExcelData = async (data) => {
     try {
-      const response = await axios.get(`${API_URL}/PoliceFinesCarInfo/getList`);
+      const response = await axios.get(
+        `${REACT_APP_API_BASE_URL}/PoliceFinesCarInfo/getList`
+      );
       const existingData = response.data;
 
       const newEntries = data.filter((entry) => {
@@ -165,7 +171,10 @@ function PoliceFinesCarInfoForm() {
       if (newEntries.length > 0) {
         await Promise.all(
           newEntries.map((entry) =>
-            axios.post(`${API_URL}/PoliceFinesCarInfo/create`, entry)
+            axios.post(
+              `${REACT_APP_API_BASE_URL}/PoliceFinesCarInfo/create`,
+              entry
+            )
           )
         );
         setSuccessMessage("New entries successfully added!");
