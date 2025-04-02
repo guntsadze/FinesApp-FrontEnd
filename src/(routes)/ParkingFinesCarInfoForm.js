@@ -13,6 +13,8 @@ function ParkingFinesCarInfoForm() {
   const [selectedRow, setSelectedRow] = useState(null);
   const [file, setFile] = useState(null);
 
+  const API_URL = process.env.REACT_APP_API_BASE_URL;
+
   const columns = [
     { field: "vehicleNo", headerName: "ავტომობილის ნომერი", width: 180 },
     { field: "companyCode", headerName: "კომპანიის საიდ კოდი", width: 180 },
@@ -45,7 +47,7 @@ function ParkingFinesCarInfoForm() {
     e.preventDefault();
     try {
       const response = await axios.post(
-        `${REACT_APP_API_BASE_URL}/ParkingFinesCarInfo/create`,
+        `${API_URL}/ParkingFinesCarInfo/create`,
         { vehicleNo, companyCode }
       );
       setSuccessMessage(response.data.message);
@@ -61,7 +63,7 @@ function ParkingFinesCarInfoForm() {
   const handleGetList = async () => {
     try {
       const response = await axios.get(
-        `${REACT_APP_API_BASE_URL}/ParkingFinesCarInfo/getList`
+        `${API_URL}/ParkingFinesCarInfo/getList`
       );
       setData(
         response.data.map((item) => ({ ...item, id: item._id })) // Ensure each row has a unique `id` for DataGrid
@@ -75,9 +77,7 @@ function ParkingFinesCarInfoForm() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(
-        `${REACT_APP_API_BASE_URL}/ParkingFinesCarInfo/delete/${id}`
-      );
+      await axios.delete(`${API_URL}/ParkingFinesCarInfo/delete/${id}`);
       setSuccessMessage("Car info deleted successfully!");
       setError("");
       handleGetList(); // Refresh data grid after deletion
@@ -98,7 +98,7 @@ function ParkingFinesCarInfoForm() {
     e.preventDefault();
     try {
       await axios.put(
-        `${REACT_APP_API_BASE_URL}/ParkingFinesCarInfo/update/${selectedRow.id}`,
+        `${API_URL}/ParkingFinesCarInfo/update/${selectedRow.id}`,
         { vehicleNo, companyCode }
       );
       setSuccessMessage("Car info updated successfully!");
@@ -150,7 +150,7 @@ function ParkingFinesCarInfoForm() {
   const importExcelData = async (data) => {
     try {
       const response = await axios.get(
-        `${REACT_APP_API_BASE_URL}/ParkingFinesCarInfo/getList`
+        `${API_URL}/ParkingFinesCarInfo/getList`
       );
       const existingData = response.data;
 
@@ -168,10 +168,7 @@ function ParkingFinesCarInfoForm() {
       if (newEntries.length > 0) {
         await Promise.all(
           newEntries.map((entry) =>
-            axios.post(
-              `${REACT_APP_API_BASE_URL}/ParkingFinesCarInfo/create}`,
-              entry
-            )
+            axios.post(`${API_URL}/ParkingFinesCarInfo/create}`, entry)
           )
         );
         setSuccessMessage("New entries successfully added!");

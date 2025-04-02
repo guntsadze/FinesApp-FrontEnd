@@ -9,11 +9,11 @@ function ParkingFines() {
   const [finesData, setFinesData] = useState([]);
   const [vehicles, setVehicles] = useState([]);
 
+  const API_URL = process.env.REACT_APP_API_BASE_URL;
+
   const getListCarInfo = async () => {
     try {
-      const response = await axios.get(
-        `${REACT_APP_API_BASE_URL}/ParkingFines/getList`
-      );
+      const response = await axios.get(`${API_URL}/ParkingFines/getList`);
 
       const vehiclesWithFines = response.data.reduce((acc, vehicle) => {
         const fines = vehicle.parkingFines || [];
@@ -41,7 +41,7 @@ function ParkingFines() {
   const getCarDocInfo = async () => {
     try {
       const response = await axios.get(
-        `${REACT_APP_API_BASE_URL}/ParkingFinesCarInfo/getList`
+        `${API_URL}/ParkingFinesCarInfo/getList`
       );
 
       const vehicles = response.data.map((item) => ({
@@ -63,12 +63,9 @@ function ParkingFines() {
 
   const handleSearch = async () => {
     try {
-      const response = await axios.post(
-        `${REACT_APP_API_BASE_URL}/parkingCheckFines`,
-        {
-          vehicles: vehicles,
-        }
-      );
+      const response = await axios.post(`${API_URL}/parkingCheckFines`, {
+        vehicles: vehicles,
+      });
       setAllFines(response.data);
       setError("");
     } catch (error) {
@@ -138,7 +135,7 @@ function ParkingFines() {
 
       if (vehiclesWithNewFines.length > 0) {
         const response = await axios.post(
-          `${REACT_APP_API_BASE_URL}/ParkingFines/create`,
+          `${API_URL}/ParkingFines/create`,
           vehiclesWithNewFines
         );
         console.log("Success: ", response.data);
