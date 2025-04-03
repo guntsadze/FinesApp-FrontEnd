@@ -14,7 +14,7 @@ function ParkingFines() {
   const [isSearching, setIsSearching] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState({});
 
-  const API_URL = "http://localhost:5000/api";
+  const API_URL = process.env.REACT_APP_API_BASE_URL;
 
   console.log(finesData);
 
