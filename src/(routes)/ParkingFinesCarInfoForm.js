@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { DataGrid } from "@mui/x-data-grid";
-import { Button, TextField, Grid } from "@mui/material";
+import { Button, TextField, Grid, Box } from "@mui/material";
 import * as XLSX from "xlsx"; // xlsx ბიბლიოთეკა
 
 function ParkingFinesCarInfoForm() {
@@ -13,7 +13,7 @@ function ParkingFinesCarInfoForm() {
   const [selectedRow, setSelectedRow] = useState(null);
   const [file, setFile] = useState(null);
 
-  const API_URL = process.env.REACT_APP_API_BASE_URL;
+  const API_URL = "http://localhost:5000/api";
 
   const columns = [
     { field: "vehicleNo", headerName: "ავტომობილის ნომერი", width: 180 },
@@ -21,6 +21,7 @@ function ParkingFinesCarInfoForm() {
     {
       field: "actions",
       headerName: "Actions",
+      headerAlign: "center",
       width: 250,
       renderCell: (params) => (
         <>
@@ -183,90 +184,114 @@ function ParkingFinesCarInfoForm() {
   };
 
   return (
-    <div>
-      <h2>დამატე ავტომობილი პარკირების ჯარიმების შესამოწმებლად</h2>
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Box>
+        <h2>ავტომობილი დამატება პარკირების ჯარიმების შესამოწმებლად</h2>
 
-      <form onSubmit={selectedRow ? handleUpdate : handleSubmit}>
-        <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <TextField
-              label="ავტომობილის ნომერი"
-              fullWidth
-              value={vehicleNo}
-              onChange={(e) => setVehicleNo(e.target.value)}
-              required
-            />
+        <form onSubmit={selectedRow ? handleUpdate : handleSubmit}>
+          <Grid
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            container
+            spacing={2}
+          >
+            <Grid item xs={6}>
+              <TextField
+                label="ავტომობილის ნომერი"
+                fullWidth
+                value={vehicleNo}
+                onChange={(e) => setVehicleNo(e.target.value)}
+                required
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                label="კომპანიის საიდ კოდი"
+                fullWidth
+                value={companyCode}
+                onChange={(e) => setCompanyCode(e.target.value)}
+                required
+              />
+            </Grid>
           </Grid>
-          <Grid item xs={6}>
-            <TextField
-              label="დოკუმენტის ნომერი"
-              fullWidth
-              value={companyCode}
-              onChange={(e) => setCompanyCode(e.target.value)}
-              required
-            />
-          </Grid>
-        </Grid>
 
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          style={{ marginTop: "20px" }}
-        >
-          {selectedRow ? "რედაქტირება" : "შენახვა"}
-        </Button>
-        <Button
-          onClick={handleGetList}
-          variant="outlined"
-          style={{ marginTop: "20px", marginLeft: "10px" }}
-        >
-          შენახული მანქანები
-        </Button>
-        <Button
-          onClick={handleExportToExcel}
-          variant="contained"
-          color="secondary"
-          style={{ marginTop: "20px", marginLeft: "10px" }}
-        >
-          ექსპორტი Excel-ში
-        </Button>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              style={{ marginTop: "20px" }}
+            >
+              {selectedRow ? "რედაქტირება" : "შენახვა"}
+            </Button>
+            <Button
+              onClick={handleGetList}
+              variant="outlined"
+              style={{ marginTop: "20px", marginLeft: "10px" }}
+            >
+              შენახული მანქანები
+            </Button>
+            <Button
+              onClick={handleExportToExcel}
+              variant="contained"
+              color="secondary"
+              style={{ marginTop: "20px", marginLeft: "10px" }}
+            >
+              ექსპორტი Excel-ში
+            </Button>
 
-        <Button
-          variant="contained"
-          color="primary"
-          component="label"
-          style={{ marginTop: "20px" }}
-        >
-          ატვირთეთ Excel ფაილი
-          <input
-            type="file"
-            accept=".xlsx, .xls"
-            hidden
-            onChange={handleFileUpload}
+            <Button
+              variant="contained"
+              color="primary"
+              component="label"
+              style={{ marginTop: "20px", marginLeft: "10px" }}
+            >
+              იმპორტი Excel - ით
+              <input
+                type="file"
+                accept=".xlsx, .xls"
+                hidden
+                onChange={handleFileUpload}
+              />
+            </Button>
+          </Box>
+        </form>
+
+        {error && <p style={{ color: "red" }}>{error}</p>}
+        {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
+
+        <div style={{ height: 400, width: "100%", marginTop: "30px" }}>
+          <DataGrid
+            rows={data}
+            columns={columns}
+            pageSize={5}
+            getRowHeight={() => 30}
+            onSelectionModelChange={(newSelection) => {
+              const selectedId = newSelection.selectionModel[0];
+              const selectedData = data.find((row) => row.id === selectedId);
+              setSelectedRow(selectedData);
+              setVehicleNo(selectedData?.vehicleNo || "");
+              setCompanyCode(selectedData?.companyCode || "");
+            }}
           />
-        </Button>
-      </form>
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
-
-      <div style={{ height: 400, width: "100%", marginTop: "30px" }}>
-        <DataGrid
-          rows={data}
-          columns={columns}
-          pageSize={5}
-          checkboxSelection
-          onSelectionModelChange={(newSelection) => {
-            const selectedId = newSelection.selectionModel[0];
-            const selectedData = data.find((row) => row.id === selectedId);
-            setSelectedRow(selectedData);
-            setVehicleNo(selectedData?.vehicleNo || "");
-            setCompanyCode(selectedData?.companyCode || "");
-          }}
-        />
-      </div>
-    </div>
+        </div>
+      </Box>
+    </Box>
   );
 }
 

@@ -2,14 +2,21 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import { DataGrid } from "@mui/x-data-grid";
+import SearchIcon from "@mui/icons-material/Search";
+import { Dialog, DialogTitle, DialogContent, Box } from "@mui/material";
+import GetAppIcon from "@mui/icons-material/GetApp";
 
 function ParkingFines() {
   const [error, setError] = useState("");
   const [allFines, setAllFines] = useState([]);
   const [finesData, setFinesData] = useState([]);
   const [vehicles, setVehicles] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState({});
 
-  const API_URL = process.env.REACT_APP_API_BASE_URL;
+  const API_URL = "http://localhost:5000/api";
+
+  console.log(finesData);
 
   const getListCarInfo = async () => {
     try {
@@ -30,6 +37,11 @@ function ParkingFines() {
 
         return acc;
       }, []);
+
+      const uniqueFinesData = [
+        ...new Map(finesData.map((item) => [item.fineNumber, item])).values(),
+      ];
+      setFinesData(uniqueFinesData);
 
       setFinesData(vehiclesWithFines);
     } catch (error) {
@@ -61,19 +73,6 @@ function ParkingFines() {
     getCarDocInfo();
   }, []);
 
-  const handleSearch = async () => {
-    try {
-      const response = await axios.post(`${API_URL}/parkingCheckFines`, {
-        vehicles: vehicles,
-      });
-      setAllFines(response.data);
-      setError("");
-    } catch (error) {
-      console.error("Error fetching fines:", error);
-      setError("Error fetching fines");
-    }
-  };
-
   useEffect(() => {
     const fetchData = async () => {
       if (allFines.length > 0) {
@@ -84,6 +83,44 @@ function ParkingFines() {
 
     fetchData();
   }, [allFines]);
+
+  const handleSearch = async () => {
+    setLoadingStatus({});
+    setIsSearching(true);
+
+    try {
+      const updatedFines = [];
+
+      for (const vehicle of vehicles) {
+        setLoadingStatus((prev) => ({
+          ...prev,
+          [vehicle.vehicleNo]: "სკანირება მიმდინარეობს...",
+        }));
+
+        const response = await axios.post(`${API_URL}/parkingCheckFines`, {
+          vehicles: [vehicle],
+        });
+
+        updatedFines.push(...response.data);
+
+        setLoadingStatus((prev) => ({
+          ...prev,
+          [vehicle.vehicleNo]:
+            response.data.length > 0
+              ? "ჯარიმები ნაპოვნია ✅"
+              : "ჯარიმები არ არის❌",
+        }));
+      }
+
+      setAllFines(updatedFines);
+      setIsSearching(false);
+
+      setError("");
+    } catch (error) {
+      console.error("Error fetching fines:", error);
+      setError("Error fetching fines");
+    }
+  };
 
   const handleExportToExcel = () => {
     // Remove the 'id' field from each item in the finesData array
@@ -158,24 +195,77 @@ function ParkingFines() {
   ];
 
   return (
-    <div>
-      <h2>პარკინგის ჯარიმები</h2>
-      <button onClick={handleSearch} style={{ marginBottom: "20px" }}>
-        ძებნა
-      </button>
-      <button onClick={handleExportToExcel} style={{ marginBottom: "20px" }}>
-        ექსპორტი Excel-ში
-      </button>
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <DataGrid
-        rows={finesData}
-        columns={columns}
-        pageSize={5}
-        getRowId={(row) => row.id}
-      />
-    </div>
+    <Box sx={{ width: "95vw" }}>
+      <Box
+        sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+      >
+        <Box>
+          <div sx={{ width: "100%" }}>
+            <h2
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              პარკირების ჯარიმები
+            </h2>
+          </div>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-around",
+            }}
+          >
+            <SearchIcon
+              sx={{ cursor: "pointer", m: 1 }}
+              fontSize="large"
+              onClick={handleSearch}
+            />
+            <GetAppIcon
+              sx={{ cursor: "pointer", m: 1 }}
+              fontSize="large"
+              onClick={handleExportToExcel}
+            />
+          </Box>
+          {error && <p style={{ color: "red" }}>{error}</p>}
+          <DataGrid
+            rows={finesData}
+            columns={columns}
+            getRowHeight={() => 30}
+            getRowId={(row) => `${row.id}-${row.fineNumber}`}
+          />
+        </Box>
+        <Dialog open={isSearching} maxWidth="xl" fullWidth>
+          <DialogTitle>მიმდინარეობს ჯარიმების ძებნა...</DialogTitle>
+          <DialogContent sx={{ width: "100%" }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(4, 1fr)",
+                gap: "5px",
+              }}
+            >
+              {vehicles.map((vehicle) => (
+                <p
+                  style={{
+                    border: "1px dashed wheat",
+                    padding: "0.5rem",
+                    width: "330px",
+                  }}
+                  key={vehicle.vehicleNo}
+                >
+                  {vehicle.vehicleNo} -{" "}
+                  {loadingStatus[vehicle.vehicleNo] ||
+                    "მზადაა შესამოწმებლად..."}
+                </p>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
+      </Box>
+    </Box>
   );
 }
 
