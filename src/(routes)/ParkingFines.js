@@ -14,7 +14,7 @@ function ParkingFines() {
   const [isSearching, setIsSearching] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState({});
 
-  const API_URL = process.env.REACT_APP_API_BASE_URL;
+  const API_URL = "http://localhost:5000/api";
 
   console.log(finesData);
 
@@ -37,11 +37,6 @@ function ParkingFines() {
 
         return acc;
       }, []);
-
-      const uniqueFinesData = [
-        ...new Map(finesData.map((item) => [item.fineNumber, item])).values(),
-      ];
-      setFinesData(uniqueFinesData);
 
       setFinesData(vehiclesWithFines);
     } catch (error) {
@@ -69,8 +64,10 @@ function ParkingFines() {
   };
 
   useEffect(() => {
-    getListCarInfo();
-    getCarDocInfo();
+    const fetchData = async () => {
+      await Promise.all([getListCarInfo(), getCarDocInfo()]);
+    };
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -94,7 +91,7 @@ function ParkingFines() {
       for (const vehicle of vehicles) {
         setLoadingStatus((prev) => ({
           ...prev,
-          [vehicle.vehicleNo]: "სკანირება მიმდინარეობს...",
+          [vehicle.vehicleNo]: "შემოწმება მიმდინარეობს...",
         }));
 
         const response = await axios.post(`${API_URL}/parkingCheckFines`, {
@@ -257,8 +254,7 @@ function ParkingFines() {
                   key={vehicle.vehicleNo}
                 >
                   {vehicle.vehicleNo} -{" "}
-                  {loadingStatus[vehicle.vehicleNo] ||
-                    "მზადაა შესამოწმებლად..."}
+                  {loadingStatus[vehicle.vehicleNo] || "ელოდება შემოწმებას..."}
                 </p>
               ))}
             </div>

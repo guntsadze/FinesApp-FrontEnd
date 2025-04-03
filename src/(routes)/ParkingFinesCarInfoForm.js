@@ -13,7 +13,7 @@ function ParkingFinesCarInfoForm() {
   const [selectedRow, setSelectedRow] = useState(null);
   const [file, setFile] = useState(null);
 
-  const API_URL = process.env.REACT_APP_API_BASE_URL;
+  const API_URL = "http://localhost:5000/api";
 
   const columns = [
     { field: "vehicleNo", headerName: "ავტომობილის ნომერი", width: 180 },
@@ -169,7 +169,7 @@ function ParkingFinesCarInfoForm() {
       if (newEntries.length > 0) {
         await Promise.all(
           newEntries.map((entry) =>
-            axios.post(`${API_URL}/ParkingFinesCarInfo/create}`, entry)
+            axios.post(`${API_URL}/ParkingFinesCarInfo/create`, entry)
           )
         );
         setSuccessMessage("New entries successfully added!");
