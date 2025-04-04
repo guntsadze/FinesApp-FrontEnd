@@ -237,8 +237,14 @@ function PoliceFines() {
           <DataGrid
             rows={finesData}
             columns={columns}
-            getRowId={(row) => row.id}
-            getRowHeight={() => 30}
+            rowHeight={30}
+            getRowId={(row) => `${row.id}-${row.receiptNumber}`}
+            initialState={{
+              pagination: {
+                paginationModel: { pageSize: 15, page: 0 }, // აქ getRowHeight არ უნდა იყოს!
+              },
+            }}
+            pageSizeOptions={[5, 10, 15, 20, 50, 100]}
           />
         </Box>
         <Dialog open={isSearching} maxWidth="xl" fullWidth>
